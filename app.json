@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "MedPulse",
+    "slug": "medpulse",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "medpulse",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.medpulse.app"
+    },
+    "android": {
+      "package": "com.medpulse.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#ddfff7"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-status-bar",
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

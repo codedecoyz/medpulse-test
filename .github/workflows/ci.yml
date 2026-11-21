@@ -1,0 +1,64 @@
+name: MedPulse CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  app:
+    name: Typecheck, Lint, Test & Secret Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify GEMINI_API_KEY is absent from client code
+        run: |
+          if grep -rn "GEMINI_API_KEY" app/ src/; then
+            echo "ERROR: GEMINI_API_KEY must never appear in client code (MP-NFR-001)"
+            exit 1
+          fi
+
+      - name: Run TypeScript check
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Jest test suite
+        run: npm run test:ci
+
+  supabase:
+    name: Supabase Migrations & pgTAP RLS Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local stack
+        run: supabase start
+
+      - name: Reset database and apply migrations + seed
+        run: supabase db reset
+
+      - name: Run pgTAP RLS and integrity tests
+        run: supabase test db
+
+      - name: Stop Supabase local stack
+        if: always()
+        run: supabase stop
